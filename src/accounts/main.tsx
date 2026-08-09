@@ -126,7 +126,18 @@ function AccountsPage() {
                   {new Date(account.created_at).toLocaleDateString()}
                 </td>
                 <td className="py-2 text-right">
-                  ...
+                  <button
+                    onClick={() => setEditing(account)}
+                    className="text-gray-500 hover:text-black text-xs mr-3"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => toggleActive(account)}
+                    className="text-gray-500 hover:text-black text-xs"
+                  >
+                    {account.is_active ? 'Disable' : 'Enable'}
+                  </button>
                 </td>
               </tr>
             ))}
