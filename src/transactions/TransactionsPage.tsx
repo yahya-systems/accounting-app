@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, Fragment } from 'react'
-import type { Transaction, TransactionDetail, TransactionFilters as FiltersType } from '../lib/types'
+import type { Transaction, TransactionDetail, TransactionFilters as FiltersType } from '../libs/types'
 import TransactionFilters from './components/TransactionFilters'
 import TransactionForm, { type TransactionFormValues } from './components/TransactionForm'
 import Modal from '../components/Modal'

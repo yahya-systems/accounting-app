@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { AccountFilters as AccountFiltersType } from '../../../lib/types'
+import type { AccountFilters as AccountFiltersType } from '../../libs/types'
 
 interface Props {
   onSearch: (filters: AccountFiltersType) => void

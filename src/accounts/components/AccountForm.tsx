@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Account, AccountCategory } from '../../../lib/types'
+import type { Account, AccountCategory } from '../../libs/types'
 
 const CATEGORIES: AccountCategory[] = ['asset', 'liability', 'equity', 'revenue', 'expense']
 

@@ -1,6 +1,6 @@
 import { useEffect, useState, Fragment } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import type { AccountDetail, TransactionDetail } from '../lib/types'
+import type { AccountDetail, TransactionDetail } from '../libs/types'
 import BackToHome from '../components/BackToHome'
 
 const API_BASE = import.meta.env.VITE_URL
