@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import type { AccountDetail, TransactionDetail } from '../lib/types'
 import BackToHome from '../components/BackToHome'
 
-const API_BASE = 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_URL
 
 function AccountDetailPage() {
   const { id } = useParams()

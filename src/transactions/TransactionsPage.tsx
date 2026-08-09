@@ -5,7 +5,7 @@ import TransactionForm, { type TransactionFormValues } from './components/Transa
 import Modal from '../components/Modal'
 import BackToHome from '../components/BackToHome'
 
-const API_BASE = 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_URL
 
 function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([])

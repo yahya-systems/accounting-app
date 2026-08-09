@@ -4,7 +4,7 @@ import type { FixedAsset, FixedAssetDetail, FixedAssetFilters as FiltersType, Tr
 import FixedAssetFilters from './components/FixedAssetFilters'
 import BackToHome from '../components/BackToHome'
 
-const API_BASE = 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_URL
 
 function FixedAssetsPage() {
   const [assets, setAssets] = useState<FixedAsset[]>([])

@@ -6,7 +6,7 @@ import BackToHome from '../components/BackToHome.tsx'
 import AccountForm, { type AccountFormValues } from './components/AccountForm'
 import Modal from '../components/Modal'
 
-const API_BASE = 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_URL
 
 function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([])
