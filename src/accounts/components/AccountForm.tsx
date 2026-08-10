@@ -3,6 +3,14 @@ import type { Account, AccountCategory } from '../../libs/types'
 
 const CATEGORIES: AccountCategory[] = ['asset', 'liability', 'equity', 'revenue', 'expense']
 
+const CATEGORY_LABELS: Record<AccountCategory, string> = {
+  asset: 'Actif',
+  liability: 'Passif',
+  equity: 'Capitaux propres',
+  revenue: 'Produits',
+  expense: 'Charges',
+}
+
 export interface AccountFormValues {
   name: string
   description: string
@@ -37,7 +45,7 @@ function AccountForm({ mode, initial, onSubmit, onCancel }: Props) {
         await onSubmit({ name, description })
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue')
     } finally {
       setSubmitting(false)
     }
@@ -46,7 +54,7 @@ function AccountForm({ mode, initial, onSubmit, onCancel }: Props) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 text-sm">
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Name</label>
+        <label className="text-gray-500">Nom</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -77,7 +85,7 @@ function AccountForm({ mode, initial, onSubmit, onCancel }: Props) {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-gray-500">Category</label>
+            <label className="text-gray-500">Catégorie</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as AccountCategory)}
@@ -85,7 +93,7 @@ function AccountForm({ mode, initial, onSubmit, onCancel }: Props) {
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {CATEGORY_LABELS[c]}
                 </option>
               ))}
             </select>
@@ -101,14 +109,14 @@ function AccountForm({ mode, initial, onSubmit, onCancel }: Props) {
           onClick={onCancel}
           className="border border-gray-300 rounded px-3 py-1 text-gray-600 hover:text-black"
         >
-          Cancel
+          Annuler
         </button>
         <button
           type="submit"
           disabled={submitting}
           className="bg-black text-white rounded px-3 py-1 disabled:opacity-50"
         >
-          {submitting ? 'Saving...' : mode === 'create' ? 'Create' : 'Save'}
+          {submitting ? 'Enregistrement...' : mode === 'create' ? 'Créer' : 'Enregistrer'}
         </button>
       </div>
     </form>

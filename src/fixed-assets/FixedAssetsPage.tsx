@@ -6,6 +6,19 @@ import BackToHome from '../components/BackToHome'
 
 const API_BASE = import.meta.env.VITE_URL
 
+const STATUS_LABELS: Record<string, string> = {
+  active: 'Actif',
+  disposed: 'Cédé',
+  draft: 'Brouillon',
+  posted: 'Comptabilisé',
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  purchase: 'Achat',
+  depreciation: 'Amortissement',
+  disposal: 'Cession',
+}
+
 function FixedAssetsPage() {
   const [assets, setAssets] = useState<FixedAsset[]>([])
   const [loading, setLoading] = useState(true)
@@ -31,11 +44,11 @@ function FixedAssetsPage() {
       }
       const query = params.toString()
       const res = await fetch(`${API_BASE}/subledgers/fixed-assets${query ? `?${query}` : ''}`)
-      if (!res.ok) throw new Error('Failed to fetch fixed assets')
+      if (!res.ok) throw new Error('Échec de la récupération des immobilisations')
       const data = await res.json()
       setAssets(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue')
     } finally {
       setLoading(false)
     }
@@ -60,7 +73,7 @@ function FixedAssetsPage() {
     setExpandedLoading(true)
     try {
       const res = await fetch(`${API_BASE}/subledgers/fixed-assets/${id}`)
-      if (!res.ok) throw new Error('Failed to load asset')
+      if (!res.ok) throw new Error('Échec du chargement de l\'immobilisation')
       const data = await res.json()
       setExpandedDetail(data)
     } catch {
@@ -81,7 +94,7 @@ function FixedAssetsPage() {
     setExpandedTxLoading(true)
     try {
       const res = await fetch(`${API_BASE}/transactions/${entryId}`)
-      if (!res.ok) throw new Error('Failed to load transaction')
+      if (!res.ok) throw new Error('Échec du chargement de la transaction')
       const data = await res.json()
       setExpandedTx(data)
     } catch {
@@ -97,11 +110,11 @@ function FixedAssetsPage() {
         <BackToHome />
       </div>
 
-      <h1 className="text-xl font-medium text-black mt-4 mb-6">Fixed Assets</h1>
+      <h1 className="text-xl font-medium text-black mt-4 mb-6">Immobilisations</h1>
 
       <FixedAssetFilters onSearch={fetchAssets} />
 
-      {loading && <p className="text-gray-400 text-sm">Loading...</p>}
+      {loading && <p className="text-gray-400 text-sm">Chargement...</p>}
       {error && <p className="text-gray-800 text-sm">{error}</p>}
 
       {!loading && !error && (
@@ -109,12 +122,12 @@ function FixedAssetsPage() {
           <thead>
             <tr className="text-left text-gray-500 bg-gray-50">
               <th className="py-2 px-3 font-normal border border-gray-200 w-6"></th>
-              <th className="py-2 px-3 font-normal border border-gray-200">Title</th>
-              <th className="py-2 px-3 font-normal border border-gray-200 text-right">Cost</th>
-              <th className="py-2 px-3 font-normal border border-gray-200">Purchased</th>
-              <th className="py-2 px-3 font-normal border border-gray-200">Useful life</th>
-              <th className="py-2 px-3 font-normal border border-gray-200">Depreciation</th>
-              <th className="py-2 px-3 font-normal border border-gray-200">Status</th>
+              <th className="py-2 px-3 font-normal border border-gray-200">Titre</th>
+              <th className="py-2 px-3 font-normal border border-gray-200 text-right">Coût</th>
+              <th className="py-2 px-3 font-normal border border-gray-200">Acheté le</th>
+              <th className="py-2 px-3 font-normal border border-gray-200">Durée d'utilité</th>
+              <th className="py-2 px-3 font-normal border border-gray-200">Amortissement</th>
+              <th className="py-2 px-3 font-normal border border-gray-200">Statut</th>
             </tr>
           </thead>
           <tbody>
@@ -130,24 +143,24 @@ function FixedAssetsPage() {
                   </td>
                   <td className="py-2 px-3 text-gray-600 border border-gray-200">{asset.purchase_date}</td>
                   <td className="py-2 px-3 text-gray-600 border border-gray-200">
-                    {asset.useful_life_months} mo
+                    {asset.useful_life_months} mois
                   </td>
                   <td className="py-2 px-3 text-gray-600 border border-gray-200">
                     {asset.depreciation_method}
                   </td>
-                  <td className="py-2 px-3 text-gray-600 border border-gray-200">{asset.status}</td>
+                  <td className="py-2 px-3 text-gray-600 border border-gray-200">{STATUS_LABELS[asset.status] || asset.status}</td>
                 </tr>
 
                 {expandedId === asset.id && (
                   <tr className="bg-gray-50">
                     <td colSpan={7} className="py-3 px-4 border border-gray-200">
-                      {expandedLoading && <p className="text-gray-400 text-xs">Loading...</p>}
+                      {expandedLoading && <p className="text-gray-400 text-xs">Chargement...</p>}
 
                       {!expandedLoading && expandedDetail && (
                         <div className="text-xs">
                           <p className="text-gray-600 mb-3">
                             {expandedDetail.description || (
-                              <span className="text-gray-400">No description</span>
+                              <span className="text-gray-400">Pas de description</span>
                             )}
                           </p>
 
@@ -157,8 +170,8 @@ function FixedAssetsPage() {
                                 <th className="py-1 px-2 font-normal border border-gray-200 w-6"></th>
                                 <th className="py-1 px-2 font-normal border border-gray-200">Date</th>
                                 <th className="py-1 px-2 font-normal border border-gray-200">Type</th>
-                                <th className="py-1 px-2 font-normal border border-gray-200">Entry</th>
-                                <th className="py-1 px-2 font-normal border border-gray-200">Status</th>
+                                <th className="py-1 px-2 font-normal border border-gray-200">Écriture</th>
+                                <th className="py-1 px-2 font-normal border border-gray-200">Statut</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -172,42 +185,42 @@ function FixedAssetsPage() {
                                       {expandedTxId === t.journal_entry_id ? '▾' : '▸'}
                                     </td>
                                     <td className="py-1 px-2 text-gray-600 border border-gray-200">{t.date}</td>
-                                    <td className="py-1 px-2 text-gray-600 border border-gray-200">{t.type}</td>
+                                    <td className="py-1 px-2 text-gray-600 border border-gray-200">{TYPE_LABELS[t.type] || t.type}</td>
                                     <td className="py-1 px-2 text-gray-700 border border-gray-200">
-                                      {t.title || `Entry #${t.journal_entry_id}`}
+                                      {t.title || `Écriture n°${t.journal_entry_id}`}
                                     </td>
-                                    <td className="py-1 px-2 text-gray-600 border border-gray-200">{t.status}</td>
+                                    <td className="py-1 px-2 text-gray-600 border border-gray-200">{STATUS_LABELS[t.status] || t.status}</td>
                                   </tr>
 
                                   {expandedTxId === t.journal_entry_id && (
                                     <tr className="bg-gray-100">
                                       <td colSpan={5} className="py-2 px-3 border border-gray-200">
                                         {expandedTxLoading && (
-                                          <p className="text-gray-400 text-xs">Loading...</p>
+                                          <p className="text-gray-400 text-xs">Chargement...</p>
                                         )}
 
                                         {!expandedTxLoading && expandedTx && (
                                           <div className="text-xs">
                                             <div className="flex items-center gap-3 mb-1">
                                               <span className="text-black font-medium">
-                                                {expandedTx.title || `Entry #${expandedTx.id}`}
+                                                {expandedTx.title || `Écriture n°${expandedTx.id}`}
                                               </span>
                                               <span className="text-gray-400">#{expandedTx.id}</span>
                                               {expandedTx.reverses_entry_id && (
                                                 <span className="text-gray-600 border border-gray-300 rounded px-1.5 py-0.5">
-                                                  Reverses #{expandedTx.reverses_entry_id}
+                                                  Contre-passe la n°{expandedTx.reverses_entry_id}
                                                 </span>
                                               )}
                                               <Link
                                                 to={`/transactions/${expandedTx.id}`}
                                                 className="text-gray-500 hover:text-black underline ml-auto"
                                               >
-                                                Open →
+                                                Ouvrir →
                                               </Link>
                                             </div>
                                             <p className="text-gray-600 mb-2">
                                               {expandedTx.description || (
-                                                <span className="text-gray-400">No description</span>
+                                                <span className="text-gray-400">Pas de description</span>
                                               )}
                                             </p>
 
@@ -215,13 +228,13 @@ function FixedAssetsPage() {
                                               <thead>
                                                 <tr className="text-left text-gray-500 bg-white">
                                                   <th className="py-1 px-2 font-normal border border-gray-200">
-                                                    Account
+                                                    Compte
                                                   </th>
                                                   <th className="py-1 px-2 font-normal border border-gray-200 text-right">
-                                                    Debit
+                                                    Débit
                                                   </th>
                                                   <th className="py-1 px-2 font-normal border border-gray-200 text-right">
-                                                    Credit
+                                                    Crédit
                                                   </th>
                                                 </tr>
                                               </thead>
@@ -247,7 +260,7 @@ function FixedAssetsPage() {
 
                                         {!expandedTxLoading && !expandedTx && (
                                           <p className="text-gray-400 text-xs">
-                                            Failed to load transaction details
+                                            Échec du chargement des détails de la transaction
                                           </p>
                                         )}
                                       </td>
@@ -258,7 +271,7 @@ function FixedAssetsPage() {
                               {expandedDetail.transactions.length === 0 && (
                                 <tr>
                                   <td colSpan={5} className="py-2 text-gray-400 text-center border border-gray-200">
-                                    No transactions
+                                    Aucune transaction
                                   </td>
                                 </tr>
                               )}
@@ -268,7 +281,7 @@ function FixedAssetsPage() {
                       )}
 
                       {!expandedLoading && !expandedDetail && (
-                        <p className="text-gray-400 text-xs">Failed to load asset details</p>
+                        <p className="text-gray-400 text-xs">Échec du chargement des détails de l'immobilisation</p>
                       )}
                     </td>
                   </tr>
@@ -278,7 +291,7 @@ function FixedAssetsPage() {
             {assets.length === 0 && (
               <tr>
                 <td colSpan={7} className="py-4 text-gray-400 text-center border border-gray-200">
-                  No fixed assets found
+                  Aucune immobilisation trouvée
                 </td>
               </tr>
             )}

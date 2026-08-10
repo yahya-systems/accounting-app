@@ -27,43 +27,43 @@ function TransactionFilters({ onSearch }: Props) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-wrap gap-2 items-end mb-4 text-sm">
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Search</label>
+        <label className="text-gray-500">Recherche</label>
         <input
           value={filters.search}
           onChange={(e) => update('search', e.target.value)}
           className="border border-gray-300 rounded px-2 py-1"
-          placeholder="title or description"
+          placeholder="titre ou description"
         />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Status</label>
+        <label className="text-gray-500">Statut</label>
         <select
           value={filters.status}
           onChange={(e) => update('status', e.target.value)}
           className="border border-gray-300 rounded px-2 py-1"
         >
-          <option value="">Any</option>
-          <option value="draft">Draft</option>
-          <option value="posted">Posted</option>
+          <option value="">Tous</option>
+          <option value="draft">Brouillon</option>
+          <option value="posted">Comptabilisé</option>
         </select>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Reversal</label>
+        <label className="text-gray-500">Contre-passation</label>
         <select
           value={filters.isReversal}
           onChange={(e) => update('isReversal', e.target.value)}
           className="border border-gray-300 rounded px-2 py-1"
         >
-          <option value="">Any</option>
-          <option value="true">Reversals only</option>
-          <option value="false">Non-reversals</option>
+          <option value="">Tous</option>
+          <option value="true">Contre-passations uniquement</option>
+          <option value="false">Non contre-passées</option>
         </select>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Date from</label>
+        <label className="text-gray-500">Date du</label>
         <input
           type="date"
           value={filters.dateFrom}
@@ -73,7 +73,7 @@ function TransactionFilters({ onSearch }: Props) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Date to</label>
+        <label className="text-gray-500">Date au</label>
         <input
           type="date"
           value={filters.dateTo}
@@ -86,7 +86,7 @@ function TransactionFilters({ onSearch }: Props) {
         type="submit"
         className="border border-gray-300 rounded px-3 py-1 text-gray-700 hover:border-black hover:text-black"
       >
-        Search
+        Rechercher
       </button>
     </form>
   )

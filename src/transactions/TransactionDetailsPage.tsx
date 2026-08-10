@@ -5,6 +5,11 @@ import BackToHome from '../components/BackToHome'
 
 const API_BASE = import.meta.env.VITE_URL
 
+const STATUS_LABELS: Record<string, string> = {
+  draft: 'Brouillon',
+  posted: 'Comptabilisé',
+}
+
 function TransactionDetailPage() {
   const { id } = useParams()
   const [tx, setTx] = useState<TransactionDetail | null>(null)
@@ -19,13 +24,13 @@ function TransactionDetailPage() {
     try {
       const res = await fetch(`${API_BASE}/transactions/${id}`)
       if (!res.ok) {
-        if (res.status === 404) throw new Error('Transaction not found')
-        throw new Error('Failed to fetch transaction')
+        if (res.status === 404) throw new Error('Écriture non trouvée')
+        throw new Error('Échec de la récupération de l\'écriture')
       }
       const data = await res.json()
       setTx(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue')
     } finally {
       setLoading(false)
     }
@@ -44,11 +49,11 @@ function TransactionDetailPage() {
       const res = await fetch(`${API_BASE}/transactions/${tx.id}/post`, { method: 'POST' })
       if (!res.ok) {
         const body = await res.json().catch(() => null)
-        throw new Error(body?.error?.[0]?.message ?? body?.error ?? 'Failed to post transaction')
+        throw new Error(body?.error?.[0]?.message ?? body?.error ?? 'Échec de la comptabilisation de l\'écriture')
       }
       await fetchTx()
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Something went wrong')
+      setActionError(err instanceof Error ? err.message : 'Une erreur est survenue')
     } finally {
       setActionLoading(false)
     }
@@ -62,11 +67,11 @@ function TransactionDetailPage() {
       const res = await fetch(`${API_BASE}/transactions/${tx.id}/reverse`, { method: 'POST' })
       if (!res.ok) {
         const body = await res.json().catch(() => null)
-        throw new Error(body?.error?.[0]?.message ?? body?.error ?? 'Failed to reverse transaction')
+        throw new Error(body?.error?.[0]?.message ?? body?.error ?? 'Échec de la contre-passation de l\'écriture')
       }
       await fetchTx()
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Something went wrong')
+      setActionError(err instanceof Error ? err.message : 'Une erreur est survenue')
     } finally {
       setActionLoading(false)
     }
@@ -75,7 +80,7 @@ function TransactionDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white p-6">
-        <p className="text-gray-400 text-sm">Loading...</p>
+        <p className="text-gray-400 text-sm">Chargement...</p>
       </div>
     )
   }
@@ -85,11 +90,11 @@ function TransactionDetailPage() {
       <div className="min-h-screen bg-white p-6">
         <div className="flex items-center justify-between">
           <Link to="/transactions" className="text-gray-500 hover:text-black text-sm">
-            ← Back to Transactions
+            ← Retour aux écritures
           </Link>
           <BackToHome />
         </div>
-        <p className="text-gray-800 text-sm mt-4">{error ?? 'Transaction not found'}</p>
+        <p className="text-gray-800 text-sm mt-4">{error ?? 'Écriture non trouvée'}</p>
       </div>
     )
   }
@@ -101,36 +106,36 @@ function TransactionDetailPage() {
     <div className="min-h-screen bg-white p-6">
       <div className="flex items-center justify-between">
         <Link to="/transactions" className="text-gray-500 hover:text-black text-sm">
-          ← Back to Transactions
+          ← Retour aux écritures
         </Link>
         <BackToHome />
       </div>
 
       <div className="mt-4 mb-8">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-medium text-black">{tx.title || `Entry #${tx.id}`}</h1>
+          <h1 className="text-xl font-medium text-black">{tx.title || `Écriture n°${tx.id}`}</h1>
           <span className="text-gray-400 text-sm">#{tx.id}</span>
           <span className="text-gray-600 text-xs border border-gray-300 rounded px-2 py-0.5">
-            {tx.status}
+            {STATUS_LABELS[tx.status] || tx.status}
           </span>
           {tx.reverses_entry_id && (
             <Link
               to={`/transactions/${tx.reverses_entry_id}`}
               className="text-gray-600 text-xs border border-gray-300 rounded px-2 py-0.5 hover:border-black hover:text-black"
             >
-              Reverses #{tx.reverses_entry_id}
+              Contre-passe la n°{tx.reverses_entry_id}
             </Link>
           )}
         </div>
 
         <p className="text-gray-600 text-sm mt-2">
-          {tx.description || <span className="text-gray-400">No description</span>}
+          {tx.description || <span className="text-gray-400">Pas de description</span>}
         </p>
 
         <div className="flex gap-6 mt-3 text-xs text-gray-500">
-          <span>Date: {tx.date}</span>
-          {tx.posted_at && <span>Posted: {new Date(tx.posted_at).toLocaleString()}</span>}
-          <span>Created: {new Date(tx.created_at).toLocaleString()}</span>
+          <span>Date : {tx.date}</span>
+          {tx.posted_at && <span>Comptabilisé le : {new Date(tx.posted_at).toLocaleString('fr-FR')}</span>}
+          <span>Créé le : {new Date(tx.created_at).toLocaleString('fr-FR')}</span>
         </div>
 
         <div className="flex gap-2 mt-4">
@@ -140,7 +145,7 @@ function TransactionDetailPage() {
               disabled={actionLoading}
               className="border border-gray-300 rounded px-3 py-1 text-sm text-gray-700 hover:border-black hover:text-black disabled:opacity-50"
             >
-              Post
+              Comptabiliser
             </button>
           )}
           {tx.status === 'posted' && !tx.reverses_entry_id && (
@@ -149,7 +154,7 @@ function TransactionDetailPage() {
               disabled={actionLoading}
               className="border border-gray-300 rounded px-3 py-1 text-sm text-gray-700 hover:border-black hover:text-black disabled:opacity-50"
             >
-              Reverse
+              Contre-passer
             </button>
           )}
         </div>
@@ -157,14 +162,14 @@ function TransactionDetailPage() {
         {actionError && <p className="text-gray-800 text-xs mt-2">{actionError}</p>}
       </div>
 
-      <h2 className="text-sm font-medium text-black mb-3">Journal Lines</h2>
+      <h2 className="text-sm font-medium text-black mb-3">Lignes d'écriture</h2>
 
       <table className="w-full text-sm border border-gray-200 border-collapse">
         <thead>
           <tr className="text-left text-gray-500 bg-gray-50">
-            <th className="py-2 px-3 font-normal border border-gray-200">Account</th>
-            <th className="py-2 px-3 font-normal border border-gray-200 text-right">Debit</th>
-            <th className="py-2 px-3 font-normal border border-gray-200 text-right">Credit</th>
+            <th className="py-2 px-3 font-normal border border-gray-200">Compte</th>
+            <th className="py-2 px-3 font-normal border border-gray-200 text-right">Débit</th>
+            <th className="py-2 px-3 font-normal border border-gray-200 text-right">Crédit</th>
           </tr>
         </thead>
         <tbody>

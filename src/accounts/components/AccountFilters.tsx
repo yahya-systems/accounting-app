@@ -7,6 +7,14 @@ interface Props {
 
 const CATEGORIES = ['asset', 'liability', 'equity', 'revenue', 'expense'] as const
 
+const CATEGORY_LABELS: Record<string, string> = {
+  asset: 'Actif',
+  liability: 'Passif',
+  equity: 'Capitaux propres',
+  revenue: 'Produits',
+  expense: 'Charges',
+}
+
 function AccountFilters({ onSearch }: Props) {
   const [filters, setFilters] = useState<AccountFiltersType>({
     search: '',
@@ -30,46 +38,46 @@ function AccountFilters({ onSearch }: Props) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-wrap gap-2 items-end mb-4 text-sm">
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Search</label>
+        <label className="text-gray-500">Recherche</label>
         <input
           value={filters.search}
           onChange={(e) => update('search', e.target.value)}
           className="border border-gray-300 rounded px-2 py-1"
-          placeholder="name or description"
+          placeholder="nom ou description"
         />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Category</label>
+        <label className="text-gray-500">Catégorie</label>
         <select
           value={filters.category}
           onChange={(e) => update('category', e.target.value)}
           className="border border-gray-300 rounded px-2 py-1"
         >
-          <option value="">Any</option>
+          <option value="">Toutes</option>
           {CATEGORIES.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {CATEGORY_LABELS[c] || c}
             </option>
           ))}
         </select>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Active</label>
+        <label className="text-gray-500">Statut</label>
         <select
           value={filters.active}
           onChange={(e) => update('active', e.target.value)}
           className="border border-gray-300 rounded px-2 py-1"
         >
-          <option value="">Any</option>
-          <option value="true">Active</option>
-          <option value="false">Inactive</option>
+          <option value="">Tous</option>
+          <option value="true">Actif</option>
+          <option value="false">Inactif</option>
         </select>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Code from</label>
+        <label className="text-gray-500">Code de</label>
         <input
           value={filters.codeFrom}
           onChange={(e) => update('codeFrom', e.target.value)}
@@ -78,7 +86,7 @@ function AccountFilters({ onSearch }: Props) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Code to</label>
+        <label className="text-gray-500">Code à</label>
         <input
           value={filters.codeTo}
           onChange={(e) => update('codeTo', e.target.value)}
@@ -87,7 +95,7 @@ function AccountFilters({ onSearch }: Props) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Created from</label>
+        <label className="text-gray-500">Créé à partir du</label>
         <input
           type="date"
           value={filters.dateFrom}
@@ -97,7 +105,7 @@ function AccountFilters({ onSearch }: Props) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Created to</label>
+        <label className="text-gray-500">Créé jusqu'au</label>
         <input
           type="date"
           value={filters.dateTo}
@@ -110,7 +118,7 @@ function AccountFilters({ onSearch }: Props) {
         type="submit"
         className="border border-gray-300 rounded px-3 py-1 text-gray-700 hover:border-black hover:text-black"
       >
-        Search
+        Rechercher
       </button>
     </form>
   )

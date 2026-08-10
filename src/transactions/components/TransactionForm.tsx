@@ -91,18 +91,18 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
     setError(null)
 
     if (!balanced) {
-      setError('Total debits must equal total credits')
+      setError('Le total des débits doit être égal au total des crédits')
       return
     }
     if (lines.some((l) => !l.account_id || !l.amount)) {
-      setError('Every line needs an account and an amount')
+      setError('Chaque ligne nécessite un compte et un montant')
       return
     }
     const assetLinesInvalid = lines.some(
       (l) => l.hasAsset && (!l.asset.title || !l.asset.useful_life_months)
     )
     if (assetLinesInvalid) {
-      setError('Asset lines need a title and useful life')
+      setError('Les lignes d\'immobilisation nécessitent un titre et une durée d\'utilité')
       return
     }
 
@@ -128,7 +128,7 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
         })),
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue')
     } finally {
       setSubmitting(false)
     }
@@ -148,7 +148,7 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-gray-500">Title</label>
+        <label className="text-gray-500">Titre</label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -168,7 +168,7 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-gray-500">Journal lines</label>
+        <label className="text-gray-500">Lignes d'écriture</label>
         {lines.map((line, i) => (
           <div key={i} className="border border-gray-200 rounded p-2 flex flex-col gap-2">
             <div className="flex gap-1.5 items-center">
@@ -177,7 +177,7 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
                 onChange={(e) => updateLine(i, { account_id: e.target.value })}
                 className="border border-gray-300 rounded px-1.5 py-1 flex-1 min-w-0 text-xs"
               >
-                <option value="">Select account</option>
+                <option value="">Sélectionner un compte</option>
                 {accounts.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.name} {a.code ? `(${a.code})` : ''}
@@ -190,8 +190,8 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
                 onChange={(e) => updateLine(i, { side: e.target.value as 'debit' | 'credit' })}
                 className="border border-gray-300 rounded px-1.5 py-1 w-20 text-xs"
               >
-                <option value="debit">Debit</option>
-                <option value="credit">Credit</option>
+                <option value="debit">Débit</option>
+                <option value="credit">Crédit</option>
               </select>
 
               <input
@@ -220,7 +220,7 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
                 checked={line.hasAsset}
                 onChange={(e) => updateLine(i, { hasAsset: e.target.checked })}
               />
-              This line registers a fixed asset
+              Cette ligne enregistre une immobilisation
             </label>
 
             {line.hasAsset && (
@@ -228,13 +228,13 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
                 <input
                   value={line.asset.title}
                   onChange={(e) => updateAsset(i, { title: e.target.value })}
-                  placeholder="Asset title"
+                  placeholder="Titre de l'immobilisation"
                   className="border border-gray-300 rounded px-1.5 py-1 text-xs"
                 />
                 <input
                   value={line.asset.description}
                   onChange={(e) => updateAsset(i, { description: e.target.value })}
-                  placeholder="Asset description (optional)"
+                  placeholder="Description de l'immobilisation (optionnel)"
                   className="border border-gray-300 rounded px-1.5 py-1 text-xs"
                 />
                 <div className="flex gap-1.5">
@@ -243,19 +243,19 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
                     min="1"
                     value={line.asset.useful_life_months}
                     onChange={(e) => updateAsset(i, { useful_life_months: e.target.value })}
-                    placeholder="Useful life (months)"
+                    placeholder="Durée d'utilité (mois)"
                     className="border border-gray-300 rounded px-1.5 py-1 text-xs flex-1"
                   />
                   <input
                     value={line.asset.depreciation_method}
                     onChange={(e) => updateAsset(i, { depreciation_method: e.target.value })}
-                    placeholder="Depreciation method"
+                    placeholder="Méthode d'amortissement"
                     className="border border-gray-300 rounded px-1.5 py-1 text-xs flex-1"
                   />
                 </div>
                 <p className="text-gray-400 text-xs">
-                  Cost will be set to this line's amount ({line.amount || '0.00'}). Purchase date
-                  will match the transaction date.
+                  Le coût sera défini sur le montant de cette ligne ({line.amount || '0.00'}). La date d'achat
+                  correspondra à la date de l'écriture.
                 </p>
               </div>
             )}
@@ -267,14 +267,14 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
           onClick={addLine}
           className="text-gray-500 hover:text-black text-xs self-start"
         >
-          + Add line
+          + Ajouter une ligne
         </button>
 
         <div className="flex justify-between text-xs text-gray-500 border-t border-gray-200 pt-2">
-          <span>Debit total: {totalDebit.toFixed(2)}</span>
-          <span>Credit total: {totalCredit.toFixed(2)}</span>
+          <span>Total débit : {totalDebit.toFixed(2)}</span>
+          <span>Total crédit : {totalCredit.toFixed(2)}</span>
           <span className={balanced ? 'text-gray-500' : 'text-gray-800 font-medium'}>
-            {balanced ? 'Balanced' : 'Not balanced'}
+            {balanced ? 'Équilibré' : 'Non équilibré'}
           </span>
         </div>
       </div>
@@ -287,14 +287,14 @@ function TransactionForm({ onSubmit, onCancel }: Props) {
           onClick={onCancel}
           className="border border-gray-300 rounded px-3 py-1 text-gray-600 hover:text-black"
         >
-          Cancel
+          Annuler
         </button>
         <button
           type="submit"
           disabled={submitting || !balanced}
           className="bg-black text-white rounded px-3 py-1 disabled:opacity-50"
         >
-          {submitting ? 'Saving...' : 'Create'}
+          {submitting ? 'Enregistrement...' : 'Créer'}
         </button>
       </div>
     </form>

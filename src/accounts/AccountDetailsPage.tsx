@@ -5,6 +5,14 @@ import BackToHome from '../components/BackToHome'
 
 const API_BASE = import.meta.env.VITE_URL
 
+const CATEGORY_LABELS: Record<string, string> = {
+  asset: 'Actif',
+  liability: 'Passif',
+  equity: 'Capitaux propres',
+  revenue: 'Produits',
+  expense: 'Charges',
+}
+
 function AccountDetailPage() {
   const { id } = useParams()
   const [account, setAccount] = useState<AccountDetail | null>(null)
@@ -22,13 +30,13 @@ function AccountDetailPage() {
       try {
         const res = await fetch(`${API_BASE}/accounts/${id}`)
         if (!res.ok) {
-          if (res.status === 404) throw new Error('Account not found')
-          throw new Error('Failed to fetch account')
+          if (res.status === 404) throw new Error('Compte non trouvé')
+          throw new Error('Échec de la récupération du compte')
         }
         const data = await res.json()
         setAccount(data)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong')
+        setError(err instanceof Error ? err.message : 'Une erreur est survenue')
       } finally {
         setLoading(false)
       }
@@ -47,7 +55,7 @@ function AccountDetailPage() {
     setExpandedLoading(true)
     try {
       const res = await fetch(`${API_BASE}/transactions/${entryId}`)
-      if (!res.ok) throw new Error('Failed to load entry')
+      if (!res.ok) throw new Error('Échec du chargement de l\'écriture')
       const data = await res.json()
       setExpandedDetail(data)
     } catch {
@@ -60,7 +68,7 @@ function AccountDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white p-6">
-        <p className="text-gray-400 text-sm">Loading...</p>
+        <p className="text-gray-400 text-sm">Chargement...</p>
       </div>
     )
   }
@@ -69,9 +77,9 @@ function AccountDetailPage() {
     return (
       <div className="min-h-screen bg-white p-6">
         <Link to="/accounts" className="text-gray-500 hover:text-black text-sm">
-          ← Back to Accounts
+          ← Retour aux comptes
         </Link>
-        <p className="text-gray-800 text-sm mt-4">{error ?? 'Account not found'}</p>
+        <p className="text-gray-800 text-sm mt-4">{error ?? 'Compte non trouvé'}</p>
       </div>
     )
   }
@@ -80,7 +88,7 @@ function AccountDetailPage() {
     <div className="min-h-screen bg-white p-6">
       <BackToHome />
       <Link to="/accounts" className="text-gray-500 hover:text-black text-sm">
-        ← Back to Accounts
+        ← Retour aux comptes
       </Link>
 
       <div className="mt-4 mb-8">
@@ -88,33 +96,33 @@ function AccountDetailPage() {
           <h1 className="text-xl font-medium text-black">{account.name}</h1>
           <span className="text-gray-400 text-sm">#{account.id}</span>
           <span className="text-gray-600 text-xs border border-gray-300 rounded px-2 py-0.5">
-            {account.category}
+            {CATEGORY_LABELS[account.category] || account.category}
           </span>
           <span className="text-gray-600 text-xs border border-gray-300 rounded px-2 py-0.5">
-            {account.is_active ? 'Active' : 'Inactive'}
+            {account.is_active ? 'Actif' : 'Inactif'}
           </span>
         </div>
 
         <p className="text-gray-600 text-sm mt-2">
-          {account.description || <span className="text-gray-400">No description</span>}
+          {account.description || <span className="text-gray-400">Pas de description</span>}
         </p>
 
         <div className="flex gap-6 mt-3 text-xs text-gray-500">
-          <span>Code: {account.code ?? '—'}</span>
-          <span>Created: {new Date(account.created_at).toLocaleDateString()}</span>
+          <span>Code : {account.code ?? '—'}</span>
+          <span>Créé le : {new Date(account.created_at).toLocaleDateString('fr-FR')}</span>
         </div>
       </div>
 
-      <h2 className="text-sm font-medium text-black mb-3">Transaction History</h2>
+      <h2 className="text-sm font-medium text-black mb-3">Historique des écritures</h2>
 
       <table className="w-full text-sm border border-gray-200 border-collapse">
         <thead>
           <tr className="text-left text-gray-500 bg-gray-50">
             <th className="py-2 px-3 font-normal border border-gray-200 w-6"></th>
             <th className="py-2 px-3 font-normal border border-gray-200">Date</th>
-            <th className="py-2 px-3 font-normal border border-gray-200">Entry</th>
-            <th className="py-2 px-3 font-normal border border-gray-200 text-right">Debit</th>
-            <th className="py-2 px-3 font-normal border border-gray-200 text-right">Credit</th>
+            <th className="py-2 px-3 font-normal border border-gray-200">Écriture</th>
+            <th className="py-2 px-3 font-normal border border-gray-200 text-right">Débit</th>
+            <th className="py-2 px-3 font-normal border border-gray-200 text-right">Crédit</th>
           </tr>
         </thead>
         <tbody>
@@ -129,7 +137,7 @@ function AccountDetailPage() {
                 </td>
                 <td className="py-2 px-3 text-gray-600 border border-gray-200">{line.date}</td>
                 <td className="py-2 px-3 text-black border border-gray-200">
-                  {line.title || `Entry #${line.journal_entry_id}`}
+                  {line.title || `Écriture n°${line.journal_entry_id}`}
                 </td>
                 <td className="py-2 px-3 text-right text-gray-600 border border-gray-200">
                   {Number(line.debit) > 0 ? Number(line.debit).toFixed(2) : ''}
@@ -142,37 +150,37 @@ function AccountDetailPage() {
               {expandedLineId === line.journal_line_id && (
                 <tr className="bg-gray-50">
                   <td colSpan={5} className="py-3 px-4 border border-gray-200">
-                    {expandedLoading && <p className="text-gray-400 text-xs">Loading...</p>}
+                    {expandedLoading && <p className="text-gray-400 text-xs">Chargement...</p>}
 
                     {!expandedLoading && expandedDetail && (
                       <div className="text-xs">
                         <div className="flex items-center gap-3 mb-1">
                           <span className="text-black font-medium">
-                            {expandedDetail.title || `Entry #${expandedDetail.id}`}
+                            {expandedDetail.title || `Écriture n°${expandedDetail.id}`}
                           </span>
                           <span className="text-gray-400">#{expandedDetail.id}</span>
                           {expandedDetail.reverses_entry_id && (
                             <span className="text-gray-600 border border-gray-300 rounded px-1.5 py-0.5">
-                              Reverses #{expandedDetail.reverses_entry_id}
+                              Contre-passe la n°{expandedDetail.reverses_entry_id}
                             </span>
                           )}
                           <Link
                             to={`/transactions/${expandedDetail.id}`}
                             className="text-gray-500 hover:text-black underline ml-auto"
                           >
-                            Open →
+                            Ouvrir →
                           </Link>
                         </div>
                         <p className="text-gray-600 mb-3">
-                          {expandedDetail.description || <span className="text-gray-400">No description</span>}
+                          {expandedDetail.description || <span className="text-gray-400">Pas de description</span>}
                         </p>
 
                         <table className="w-full border border-gray-200 border-collapse">
                           <thead>
                             <tr className="text-left text-gray-500 bg-white">
-                              <th className="py-1 px-2 font-normal border border-gray-200">Account</th>
-                              <th className="py-1 px-2 font-normal border border-gray-200 text-right">Debit</th>
-                              <th className="py-1 px-2 font-normal border border-gray-200 text-right">Credit</th>
+                              <th className="py-1 px-2 font-normal border border-gray-200">Compte</th>
+                              <th className="py-1 px-2 font-normal border border-gray-200 text-right">Débit</th>
+                              <th className="py-1 px-2 font-normal border border-gray-200 text-right">Crédit</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -195,7 +203,7 @@ function AccountDetailPage() {
                     )}
 
                     {!expandedLoading && !expandedDetail && (
-                      <p className="text-gray-400 text-xs">Failed to load entry details</p>
+                      <p className="text-gray-400 text-xs">Échec du chargement des détails de l'écriture</p>
                     )}
                   </td>
                 </tr>
@@ -205,7 +213,7 @@ function AccountDetailPage() {
           {account.journal_lines.length === 0 && (
             <tr>
               <td colSpan={5} className="py-4 text-gray-400 text-center border border-gray-200">
-                No posted transactions for this account
+                Aucune écriture comptabilisée pour ce compte
               </td>
             </tr>
           )}

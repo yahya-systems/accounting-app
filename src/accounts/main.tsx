@@ -8,6 +8,14 @@ import Modal from '../components/Modal'
 
 const API_BASE = import.meta.env.VITE_URL
 
+const CATEGORY_LABELS: Record<string, string> = {
+  asset: 'Actif',
+  liability: 'Passif',
+  equity: 'Capitaux propres',
+  revenue: 'Produits',
+  expense: 'Charges',
+}
+
 function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([])
   const [loading, setLoading] = useState(true)
@@ -28,11 +36,11 @@ function AccountsPage() {
       }
       const query = params.toString()
       const res = await fetch(`${API_BASE}/accounts${query ? `?${query}` : ''}`)
-      if (!res.ok) throw new Error('Failed to fetch accounts')
+      if (!res.ok) throw new Error('Échec de la récupération des comptes')
       const data = await res.json()
       setAccounts(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue')
     } finally {
       setLoading(false)
     }
@@ -50,7 +58,7 @@ function AccountsPage() {
     })
     if (!res.ok) {
       const body = await res.json().catch(() => null)
-      throw new Error(body?.error?.[0]?.message ?? body?.error ?? 'Failed to create account')
+      throw new Error(body?.error?.[0]?.message ?? body?.error ?? 'Échec de la création du compte')
     }
     setCreateOpen(false)
     await fetchAccounts()
@@ -65,7 +73,7 @@ function AccountsPage() {
     })
     if (!res.ok) {
       const body = await res.json().catch(() => null)
-      throw new Error(body?.error?.[0]?.message ?? body?.error ?? 'Failed to update account')
+      throw new Error(body?.error?.[0]?.message ?? body?.error ?? 'Échec de la mise à jour du compte')
     }
     setEditing(null)
     await fetchAccounts()
@@ -85,29 +93,29 @@ function AccountsPage() {
     <div className="min-h-screen bg-white p-6">
       <BackToHome />
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-medium text-black">Accounts</h1>
+        <h1 className="text-xl font-medium text-black">Comptes</h1>
         <button
           onClick={() => setCreateOpen(true)}
           className="border border-gray-300 rounded px-3 py-1 text-sm text-gray-700 hover:border-black hover:text-black"
         >
-          + New Account
+          + Nouveau compte
         </button>
       </div>
 
       <AccountFilters onSearch={fetchAccounts} />
 
-      {loading && <p className="text-gray-400 text-sm">Loading...</p>}
+      {loading && <p className="text-gray-400 text-sm">Chargement...</p>}
       {error && <p className="text-gray-800 text-sm">{error}</p>}
 
       {!loading && !error && (
         <table className="w-full text-sm border-t border-gray-200">
           <thead>
             <tr className="text-left text-gray-500 border-b border-gray-200">
-              <th className="py-2 font-normal">Name</th>
+              <th className="py-2 font-normal">Nom</th>
               <th className="py-2 font-normal">Code</th>
-              <th className="py-2 font-normal">Category</th>
-              <th className="py-2 font-normal">Status</th>
-              <th className="py-2 font-normal">Created</th>
+              <th className="py-2 font-normal">Catégorie</th>
+              <th className="py-2 font-normal">Statut</th>
+              <th className="py-2 font-normal">Créé le</th>
               <th className="py-2 font-normal"></th>
             </tr>
           </thead>
@@ -120,23 +128,23 @@ function AccountsPage() {
                   </Link>
                 </td>
                 <td className="py-2 text-gray-600">{account.code}</td>
-                <td className="py-2 text-gray-600">{account.category}</td>
-                <td className="py-2 text-gray-600">{account.is_active ? 'Active' : 'Inactive'}</td>
+                <td className="py-2 text-gray-600">{CATEGORY_LABELS[account.category] || account.category}</td>
+                <td className="py-2 text-gray-600">{account.is_active ? 'Actif' : 'Inactif'}</td>
                 <td className="py-2 text-gray-600">
-                  {new Date(account.created_at).toLocaleDateString()}
+                  {new Date(account.created_at).toLocaleDateString('fr-FR')}
                 </td>
                 <td className="py-2 text-right">
                   <button
                     onClick={() => setEditing(account)}
                     className="text-gray-500 hover:text-black text-xs mr-3"
                   >
-                    Edit
+                    Modifier
                   </button>
                   <button
                     onClick={() => toggleActive(account)}
                     className="text-gray-500 hover:text-black text-xs"
                   >
-                    {account.is_active ? 'Disable' : 'Enable'}
+                    {account.is_active ? 'Désactiver' : 'Activer'}
                   </button>
                 </td>
               </tr>
@@ -144,25 +152,24 @@ function AccountsPage() {
             {accounts.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-4 text-gray-400 text-center">
-                  No accounts found
+                  Aucun compte trouvé
                 </td>
               </tr>
             )}
           </tbody>
         </table>
-      )
-      }
+      )}
 
-      <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="New Account">
+      <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="Nouveau compte">
         <AccountForm mode="create" onSubmit={handleCreate} onCancel={() => setCreateOpen(false)} />
       </Modal>
 
-      <Modal open={!!editing} onClose={() => setEditing(null)} title="Edit Account">
+      <Modal open={!!editing} onClose={() => setEditing(null)} title="Modifier le compte">
         {editing && (
           <AccountForm mode="edit" initial={editing} onSubmit={handleEdit} onCancel={() => setEditing(null)} />
         )}
       </Modal>
-    </div >
+    </div>
   )
 }
 
